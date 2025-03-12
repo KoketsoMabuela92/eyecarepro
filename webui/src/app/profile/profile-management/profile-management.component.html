@@ -1,29 +1,40 @@
-<form [formGroup]="updateMyProfileForm" (ngSubmit)="updateProfile()">
-    <h2>Update My Profile</h2>
-    <label for="name">
-        Name:
-        <input type="text" id="name" name="name" formControlName="name" required>
-    </label>
-    <label for="email">
-        Email:
-        <input type="email" id="email" name="email" formControlName="email" required>
-    </label>
-    <button type="submit">Update Profile</button>
-</form>
+<div class="profile-container">
+  <mat-card class="profile-card">
+    <mat-card-title>Update My Profile</mat-card-title>
+    <form [formGroup]="updateMyProfileForm" (ngSubmit)="updateProfile()">
+      <mat-form-field appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput type="text" formControlName="name" required>
+      </mat-form-field>
 
-<form [formGroup]="updatePasswordForm" (ngSubmit)="updatePassword()">
-    <h2>Update Password</h2>
-    <label for="currentPassword">
-        Current Password:
-        <input type="password" id="currentPassword" name="currentPassword" formControlName="currentPassword" required>
-    </label>
-    <label for="newPassword">
-        New Password:
-        <input type="password" id="newPassword" name="newPassword" formControlName="newPassword" required>
-    </label>
-    <label for="confirmPassword">
-        Confirm Password:
-        <input type="password" id="confirmPassword" name="confirmPassword" formControlName="confirmPassword" required>
-    </label>
-    <button type="submit">Update Password</button>
-</form>
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" required>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" type="submit">Update Profile</button>
+    </form>
+  </mat-card>
+
+  <mat-card class="profile-card">
+    <mat-card-title>Update Password</mat-card-title>
+    <form [formGroup]="updatePasswordForm" (ngSubmit)="updatePassword()">
+      <mat-form-field appearance="outline">
+        <mat-label>Current Password</mat-label>
+        <input matInput type="password" formControlName="currentPassword" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>New Password</mat-label>
+        <input matInput type="password" formControlName="newPassword" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Confirm Password</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" required>
+      </mat-form-field>
+
+      <button mat-raised-button color="accent" type="submit">Update Password</button>
+    </form>
+  </mat-card>
+</div>

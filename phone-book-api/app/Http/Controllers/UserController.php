@@ -2,105 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
-class UserController extends BaseController
+class UserController extends Controller
 {
-    use AuthorizesRequests, ValidatesRequests;
-
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-        ]);
-
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'],
-        ]);
-
-        return $user;
-    }
-
-    public function login(Request $request)
-    {
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $user = User::where('email', $validated['email'])->first();
-
-        if (!$user || !password_verify($validated['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-            ]
-        ]);
-    }
-
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json(['message' => 'Logged out']);
-    }
-
-    public function me(Request $request)
-    {
-        return $request->user();
-    }
-
     public function updateMe(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated.'], 401);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
         ]);
 
-        $user = $request->user();
+        try {
+            $user->update($request->only('name', 'email'));
 
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-
-        $user->save();
-
-        return $user;
+            return response()->json([
+                'message' => 'Profile updated successfully.',
+                'user' => $user
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to update profile.', 'error' => $e->getMessage()], 500);
+        }
     }
 
     public function updatePassword(Request $request)
     {
-        $validated = $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:6',
-            'confirm_password' => 'required|same:new_password',
-        ]);
+        $user = Auth::user();
 
-        $user = $request->user();
-
-        if (!password_verify($validated['current_password'], $user->password)) {
-            return response()->json(['message' => 'Invalid current password'], 400);
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated.'], 401);
         }
 
-        $user->password = $validated['password'];
+        $request->validate([
+            'currentPassword' => 'required|string',
+            'newPassword' => 'required|string|min:6',
+            'confirmPassword' => 'required|string|same:newPassword',
+        ]);
 
-        $user->save();
+        if (!Hash::check($request->currentPassword, $user->password)) {
+            throw ValidationException::withMessages([
+                'currentPassword' => ['Current password is incorrect.']
+            ]);
+        }
 
-        return $user;
+        try {
+            $user->password = Hash::make($request->newPassword);
+            $user->save();
+
+            return response()->json(['message' => 'Password updated successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to update password.', 'error' => $e->getMessage()], 500);
+        }
     }
 }

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use GraphQL\Error\Error;
 
 class Message extends Model
 {
@@ -33,5 +35,32 @@ class Message extends Model
     public function setUserIdAttribute($value)
     {
         $this->attributes['user_id'] = auth()->id() ?? $value;
+    }
+
+    /**
+     * Create a new message and persist it to the database.
+     *
+     * @param array $data
+     * @return Message
+     * @throws Error
+     */
+    public static function createMessage(array $data): Message
+    {
+        if (empty($data['user_id'])) {
+            throw new Error('User ID is required');
+        }
+
+        // Set default status
+        $data['status'] = self::STATUS_QUEUED;
+
+        try {
+            $message = self::create($data);
+            Log::info("Message Created: ", ['message' => $message]);
+
+            return $message;
+        } catch (\Exception $e) {
+            Log::error("Message creation failed: ", ['error' => $e->getMessage()]);
+            throw new Error('Failed to create message');
+        }
     }
 }

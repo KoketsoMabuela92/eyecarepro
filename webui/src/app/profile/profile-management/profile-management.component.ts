@@ -1,13 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
+import { MatCard, MatCardTitle } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-profile-management',
   standalone: true,
-  imports: [ReactiveFormsModule],
   templateUrl: './profile-management.component.html',
-  styleUrl: './profile-management.component.scss'
+  styleUrls: ['./profile-management.component.scss'],
+  imports: [
+    MatCard,
+    MatCardTitle,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatButtonModule,
+    MatInputModule
+  ]
 })
 export class ProfileManagementComponent implements OnInit {
   public updateMyProfileForm!: FormGroup;
@@ -20,6 +31,7 @@ export class ProfileManagementComponent implements OnInit {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
     });
+
     this.updatePasswordForm = this.formBuilder.group({
       currentPassword: ['', Validators.required],
       newPassword: ['', Validators.required],
@@ -28,10 +40,42 @@ export class ProfileManagementComponent implements OnInit {
   }
 
   updateProfile(): void {
-    throw new Error('Not implemented');
+    if (this.updateMyProfileForm.valid) {
+      this.apiService.updateProfile(this.updateMyProfileForm.value).subscribe(
+        response => {
+          console.log('Profile updated:', response);
+          alert('Profile updated successfully!');
+        },
+        error => {
+          console.error('Error updating profile:', error);
+          alert('Failed to update profile.');
+        }
+      );
+    } else {
+      alert('Please fill in all required fields.');
+    }
   }
 
   updatePassword(): void {
-    throw new Error('Not implemented');
+    if (this.updatePasswordForm.valid) {
+      const passwordData = this.updatePasswordForm.value;
+      if (passwordData.newPassword !== passwordData.confirmPassword) {
+        alert('New password and confirm password do not match.');
+        return;
+      }
+
+      this.apiService.updatePassword(passwordData).subscribe(
+        response => {
+          console.log('Password updated:', response);
+          alert('Password updated successfully!');
+        },
+        error => {
+          console.error('Error updating password:', error);
+          alert('Failed to update password.');
+        }
+      );
+    } else {
+      alert('Please fill in all required fields.');
+    }
   }
 }

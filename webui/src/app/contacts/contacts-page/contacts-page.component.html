@@ -1,2 +1,15 @@
-<h1>Contacts</h1>
-<app-data-grid [loading]="loading" [headers]="getHeaders()" [data]="contacts" [actions]="actions"></app-data-grid>
+<div class="contacts-container">
+  <h1>📇 Contacts</h1>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading contacts...</p>
+  </div>
+
+  <app-data-grid
+    *ngIf="!loading"
+    [headers]="getHeaders()"
+    [data]="contacts"
+    [actions]="actions">
+  </app-data-grid>
+</div>

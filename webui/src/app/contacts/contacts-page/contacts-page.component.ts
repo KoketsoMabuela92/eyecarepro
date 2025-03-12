@@ -1,72 +1,86 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from '../../services/api.service';
-import { DataGridComponent } from "../../Shared/data-grid/data-grid.component";
 import { Contact } from '../../models/contact.model';
-import { tap } from 'rxjs/operators';
-import { TableAction } from '../../models/table-action.model';
 import { Apollo } from 'apollo-angular';
 import gql from 'graphql-tag';
+import { SendMessageDialogComponent } from '../../messages/send-message-dialog.component';
+import { DataGridComponent } from "../../Shared/data-grid/data-grid.component";
+import { NgIf } from "@angular/common";
+import { TableAction } from "../../models/table-action.model";
 
 @Component({
   selector: 'app-contacts-page',
   standalone: true,
   templateUrl: './contacts-page.component.html',
-  styleUrl: './contacts-page.component.scss',
-  imports: [DataGridComponent]
+  styleUrls: ['./contacts-page.component.scss'],
+  imports: [
+    DataGridComponent,
+    NgIf
+  ]
 })
 export class ContactsPageComponent implements OnInit {
   contacts: Contact[] = [];
-  actions: TableAction[] = [];
   loading: boolean = true;
 
-  constructor(private apiService: ApiService, private apollo: Apollo) { }
+  actions: TableAction[] = [
+    { label: 'Edit', action: () => this.editContact(), icon: 'edit' },
+    { label: 'Delete', action: () => this.deleteContact(), icon: 'delete' }
+  ];
+
+  constructor(private apiService: ApiService, private apollo: Apollo, private dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.loading = true;
-    this.actions = [
-      {
-        label: 'Send Message',
-        icon: 'message',
-        action: (contact: Contact) => this.sendMessage(contact)
-      }
-    ];
-    this.apiService.getContacts().pipe(
-      tap((contacts) => {
-        this.contacts = contacts;
-        this.loading = false;
-      })
-    ).subscribe();
+    this.apiService.getContacts().subscribe((contacts) => {
+      this.contacts = contacts;
+      this.loading = false;
+    });
   }
 
-  getHeaders(): string[] {
+  getHeaders() {
     return ['Name', 'Email', 'Phone'];
   }
 
   sendMessage(contact: Contact) {
-    const type = prompt('Enter message type (text or email):');
-    const body = prompt('Enter message body:');
-
-    this.apollo.mutate({
-      mutation: gql`
-          mutation CreateMessage($contact_id: ID!, $type: String!, $body: String!, $user_id: ID!) {
-            createMessage(contact_id: $contact_id, type: $type, body: $body, user_id: $user_id) {
-              id
-              type
-              body
-              status
-            }
-          }
-        `,
-      variables: {
-        contact_id: contact.id,
-        type,
-        body,
-        user_id: JSON.parse(localStorage.getItem('user') || '')?.id || ''
-      }
-    }).subscribe(result => {
-      console.log('Message sent:', result);
-    }, error => {
-      console.error('Error sending message:', error);
+    const dialogRef = this.dialog.open(SendMessageDialogComponent, {
+      width: '400px',
+      data: { contactId: contact.id }
     });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.apollo.mutate({
+          mutation: gql`
+            mutation CreateMessage($contact_id: ID!, $type: String!, $body: String!, $user_id: ID!) {
+              createMessage(contact_id: $contact_id, type: $type, body: $body, user_id: $user_id) {
+                id
+                type
+                body
+                status
+              }
+            }
+          `,
+          variables: {
+            contact_id: contact.id,
+            type: result.type,
+            body: result.body,
+            user_id: JSON.parse(localStorage.getItem('user') || '{}')?.id || ''
+          }
+        }).subscribe(response => {
+          console.log('Message sent:', response);
+        }, error => {
+          console.error('Error sending message:', error);
+        });
+      }
+    });
+  }
+
+  editContact() {
+    console.log('Edit contact');
+  }
+
+  deleteContact() {
+    console.log('Delete contact');
   }
 }

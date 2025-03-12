@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>Send Message</h2>
+<mat-dialog-content>
+  <form [formGroup]="messageForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Message Type</mat-label>
+      <mat-select formControlName="type">
+        <mat-option value="text">Text</mat-option>
+        <mat-option value="email">Email</mat-option>
+        <mat-option value="notification">Notification</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Message Body</mat-label>
+      <textarea matInput formControlName="body" rows="4"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="sendMessage()" [disabled]="messageForm.invalid">
+    Send
+  </button>
+</mat-dialog-actions>

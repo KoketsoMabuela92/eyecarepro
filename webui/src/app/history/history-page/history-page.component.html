@@ -1,1 +1,19 @@
-<p>history-page works!</p>
+<div *ngIf="loading" class="loading">Loading...</div>
+
+<div *ngIf="!loading && messages.length === 0" class="no-messages">
+  No message history available.
+</div>
+
+<div *ngIf="!loading && messages.length > 0" class="message-list">
+  <h2>User Message History</h2>
+  <ul>
+    <li *ngFor="let message of messages">
+      <div class="message">
+        <p><strong>Type:</strong> {{ message.type }}</p>
+        <p><strong>Body:</strong> {{ message.body }}</p>
+        <p><strong>Status:</strong> {{ message.status }}</p>
+        <p><strong>Sent At:</strong> {{ message.created_at | date:'medium' }}</p>
+      </div>
+    </li>
+  </ul>
+</div>

@@ -1,16 +1,19 @@
-@if (isAuthenticating) {
-  <div>Authenticating...</div>
-}
-@else {
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <label>
-        Email:
-        <input type="email" formControlName="email">
-      </label>
-    <label>
-      Password:
-      <input type="password" formControlName="password">
-    </label>
-    <button type="submit" [disabled]="isAuthenticating">Login</button>
-  </form>
-}
+<div class="login-container">
+  <div class="login-card">
+    @if (isAuthenticating) {
+      <div class="authenticating">Authenticating...</div>
+    }
+    @else {
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <h2>Login</h2>
+        <label for="email">Email:</label>
+        <input id="email" type="email" formControlName="email" placeholder="Enter your email" required>
+
+        <label for="password">Password:</label>
+        <input id="password" type="password" formControlName="password" placeholder="Enter your password" required>
+
+        <button type="submit" [disabled]="isAuthenticating">Login</button>
+      </form>
+    }
+  </div>
+</div>

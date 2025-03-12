@@ -1,15 +1,29 @@
-.mat-toolbar-row {
-    justify-content: space-between;
-}
-
 .spacer {
-    flex: 1 1 auto;
+  flex: 1;
 }
 
-mat-nav-list {
-    width: 200px;
-    height: calc(100vh - 64px); // 64px is the height of the toolbar
-    position: fixed;
-    top: 64px; // Position the list below the toolbar
-    overflow: auto;
+.desktop-menu {
+  display: flex;
+  gap: 10px;
+}
+
+/* Hide mobile menu button on large screens */
+.mobile-menu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+}
+
+/* Styles for sidenav */
+.sidenav-container {
+  position: absolute;
+  z-index: 1000;
 }

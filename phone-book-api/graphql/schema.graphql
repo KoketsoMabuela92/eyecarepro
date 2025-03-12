@@ -17,6 +17,21 @@ type Query {
       "Filters by name. Accepts SQL LIKE wildcards `%` and `_`."
       name: String @where(operator: "like")
     ): [User!]! @paginate(defaultCount: 10)
+
+    "Get a user's message history."
+    userMessages(
+        "Filters by user ID."
+        userId: ID!
+    ): [Message!]! @hasMany
+}
+
+type Mutation {
+    createMessage(
+        contact_id: ID!
+        type: String!
+        body: String!
+        user_id: ID!
+    ): Message @field(resolver: "App\\GraphQL\\Mutations\\CreateMessage")
 }
 
 "Account of a person who utilizes this application."
@@ -37,18 +52,10 @@ type User {
     updated_at: DateTime!
 }
 
-type Mutation {
-  createMessage(
-    contact_id: ID!
+type Message {
+    id: ID!
     type: String!
     body: String!
-    user_id: ID!): Message @field(resolver: "App\\GraphQL\\Mutations\\CreateMessage")
-}
-
-type Message {
-  id: ID!
-  type: String!
-  body: String!
-  status: String!
-  user: User! @belongsTo
+    status: String!
+    user: User! @belongsTo
 }

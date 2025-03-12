@@ -491,4 +491,17 @@ return [
          */
         'driver' => Nuwave\Lighthouse\Tracing\ApolloTracing\ApolloTracing::class,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queries
+    |--------------------------------------------------------------------------
+    |
+    | Register your custom query resolvers here.
+    |
+    */
+
+    'queries' => [
+        'userMessages' => \App\GraphQL\Queries\UserMessages::class,
+    ],
 ];
